@@ -1,9 +1,9 @@
 package com.ascoproject.ascoproject.service;
 
-import com.ascoproject.ascoproject.entity.Role;
-import com.ascoproject.ascoproject.entity.User;
 import com.ascoproject.ascoproject.model.AuthenticationRequest;
 import com.ascoproject.ascoproject.model.AuthenticationResponse;
+import com.ascoproject.ascoproject.model.ResponseAll;
+import com.ascoproject.ascoproject.model.ResponseResult;
 import com.ascoproject.ascoproject.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
@@ -34,12 +33,17 @@ public class AuthenticationService {
     }
 */
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public ResponseAll<ResponseResult<AuthenticationResponse>> authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
         var user = userRepository.findUserByUsername(request.getUsername()).orElseThrow();
         var jwt = jwtService.generateToken(user);
-        return AuthenticationResponse.builder().token(jwt).build();
+        ResponseResult<AuthenticationResponse> result = new ResponseResult<>();
+        result.setResult(AuthenticationResponse.builder().token(jwt).build());
+        return ResponseAll.<ResponseResult<AuthenticationResponse>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 }

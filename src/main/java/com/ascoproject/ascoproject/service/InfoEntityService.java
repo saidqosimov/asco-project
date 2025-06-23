@@ -1,8 +1,9 @@
 package com.ascoproject.ascoproject.service;
 
 import com.ascoproject.ascoproject.entity.InfoEntity;
-import com.ascoproject.ascoproject.entity.TaxInfoEntity;
 import com.ascoproject.ascoproject.model.InfoEntityModel;
+import com.ascoproject.ascoproject.model.ResponseAll;
+import com.ascoproject.ascoproject.model.ResponseResult;
 import com.ascoproject.ascoproject.repository.InfoEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -22,7 +23,7 @@ public class InfoEntityService {
     }
 
     @Transactional(readOnly = true)
-    public Page<InfoEntity> findAll(Pageable pageable) {
+    public ResponseAll<ResponseResult<Page<InfoEntity>>> findAll(Pageable pageable) {
         if (!pageable.getSort().isSorted()) {
             pageable = PageRequest.of(
                     pageable.getPageNumber(),
@@ -30,7 +31,12 @@ public class InfoEntityService {
                     Sort.by("id").ascending()
             );
         }
-        return infoEntityRepository.findAll(pageable);
+        ResponseResult<Page<InfoEntity>> result = new ResponseResult<>();
+        result.setResult(infoEntityRepository.findAll(pageable));
+        return ResponseAll.<ResponseResult<Page<InfoEntity>>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 
     public void deleteAll() {
@@ -43,7 +49,7 @@ public class InfoEntityService {
     }
 
     @Transactional(readOnly = true)
-    public Page<InfoEntity> findAllRu(Pageable pageable) {
+    public ResponseAll<ResponseResult<Page<InfoEntity>>> findAllRu(Pageable pageable) {
         if (!pageable.getSort().isSorted()) {
             pageable = PageRequest.of(
                     pageable.getPageNumber(),
@@ -60,30 +66,50 @@ public class InfoEntityService {
                         .fullInfo(translateService.translate(infoEntity.getFullInfo()))
                         .build())
                 .toList();
-
-        return new PageImpl<>(translatedList, pageable, originalPage.getTotalElements());
+        ResponseResult<Page<InfoEntity>> result = new ResponseResult<>();
+        result.setResult(new PageImpl<>(translatedList, pageable, originalPage.getTotalElements()));
+        return ResponseAll.<ResponseResult<Page<InfoEntity>>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 
-    public void updateInfoById(Long id, InfoEntityModel uz, InfoEntityModel ru) {
+    public ResponseAll<ResponseResult<String>> updateInfoById(Long id, InfoEntityModel uz, InfoEntityModel ru) {
         InfoEntity infoEntityById = infoEntityRepository.findById(id).orElse(null);
-        if (infoEntityById == null) {
-            return;
-        }
+        assert infoEntityById != null;
         infoEntityById.setTypeOfTax(uz.getTypeOfTax());
         infoEntityById.setFullInfo(uz.getFullInfo());
         infoEntityRepository.save(infoEntityById);
         translateService.updateTranslated(uz, ru);
+        ResponseResult<String> result = new ResponseResult<>();
+        result.setResult("update successfully");
+        return ResponseAll.<ResponseResult<String>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 
-    public void deleteInfoEntityById(Long id) {
+    public ResponseAll<ResponseResult<String>> deleteInfoEntityById(Long id) {
         infoEntityRepository.deleteById(id);
+        ResponseResult<String> result = new ResponseResult<>();
+        result.setResult("delete successfully");
+        return ResponseAll.<ResponseResult<String>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 
-    public void addInfoEntity(InfoEntityModel uz, InfoEntityModel ru) {
+    public ResponseAll<ResponseResult<String>> addInfoEntity(InfoEntityModel uz, InfoEntityModel ru) {
         InfoEntity infoEntity = new InfoEntity();
         infoEntity.setTypeOfTax(uz.getTypeOfTax());
         infoEntity.setFullInfo(uz.getFullInfo());
         infoEntityRepository.save(infoEntity);
         translateService.updateTranslated(uz, ru);
+        ResponseResult<String> result = new ResponseResult<>();
+        result.setResult("info_entity successfully added");
+        return ResponseAll.<ResponseResult<String>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 }

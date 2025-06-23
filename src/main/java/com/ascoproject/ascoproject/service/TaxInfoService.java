@@ -1,11 +1,7 @@
 package com.ascoproject.ascoproject.service;
 
 import com.ascoproject.ascoproject.entity.TaxInfoEntity;
-import com.ascoproject.ascoproject.entity.UserEntity;
-import com.ascoproject.ascoproject.model.GroupAddTaxRequest;
-import com.ascoproject.ascoproject.model.TaxInfoModel;
-import com.ascoproject.ascoproject.model.TaxInfoResponse;
-import com.ascoproject.ascoproject.model.TaxTypes;
+import com.ascoproject.ascoproject.model.*;
 import com.ascoproject.ascoproject.repository.TaxInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -36,7 +32,7 @@ public class TaxInfoService {
     }
 
     @Transactional(readOnly = true)
-    public synchronized Page<TaxInfoResponse> findAll(Pageable pageable) {
+    public synchronized ResponseAll<ResponseResult<Page<TaxInfoResponse>>> findAll(Pageable pageable) {
         if (!pageable.getSort().isSorted()) {
             pageable = PageRequest.of(
                     pageable.getPageNumber(),
@@ -62,7 +58,12 @@ public class TaxInfoService {
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), collect.size());
         List<TaxInfoResponse> pageContent = collect.subList(start, end);
-        return new PageImpl<>(pageContent, pageable, collect.size());
+        ResponseResult<Page<TaxInfoResponse>> responseResult = new ResponseResult<>();
+        responseResult.setResult(new PageImpl<>(pageContent, pageable, collect.size()));
+        ResponseAll<ResponseResult<Page<TaxInfoResponse>>> responseAll = new ResponseAll<>();
+        responseAll.setResponse(responseResult);
+        responseAll.setStatus(200);
+        return responseAll;
     }
 
     private TaxInfoModel mapToModel(TaxInfoEntity entity) {
@@ -97,13 +98,19 @@ public class TaxInfoService {
         return model;
     }
 
-    public List<String> getTaxTypesUz() {
-        return taxInfoRepository.findAllTaxInfo().stream()
+    public ResponseAll<ResponseResult<List<String>>> getTaxTypesUz() {
+        ResponseResult<List<String>> result = new ResponseResult<>();
+
+        result.setResult(taxInfoRepository.findAllTaxInfo().stream()
                 .map(TaxInfoEntity::getTaxType)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(LinkedHashSet::new)) // tartibni saqlaydi
                 .stream()
-                .toList();
+                .toList());
+        return ResponseAll.<ResponseResult<List<String>>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 
     public List<String> getTaxTypesRu() {
@@ -119,7 +126,7 @@ public class TaxInfoService {
 
 
     @Transactional(readOnly = true)
-    public Page<TaxInfoResponse> findAllRu(Pageable pageable) {
+    public ResponseAll<ResponseResult<Page<TaxInfoResponse>>> findAllRu(Pageable pageable) {
         if (!pageable.getSort().isSorted()) {
             pageable = PageRequest.of(
                     pageable.getPageNumber(),
@@ -127,9 +134,6 @@ public class TaxInfoService {
                     Sort.by("id").ascending()
             );
         }
-
-        // 1. Sahifalab olinadi
-        Page<TaxInfoEntity> originalPage = taxInfoRepository.findAll(pageable);
 
         List<TaxInfoResponse> collect = taxInfoRepository.findAllTaxInfo().stream()
                 .filter(t -> t.getTaxType() != null && !t.isDeleted())
@@ -149,8 +153,12 @@ public class TaxInfoService {
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), collect.size());
         List<TaxInfoResponse> pageContent = collect.subList(start, end);
-
-        return new PageImpl<>(pageContent, pageable, collect.size());
+        ResponseResult<Page<TaxInfoResponse>> responseResult = new ResponseResult<>();
+        responseResult.setResult(new PageImpl<>(pageContent, pageable, collect.size()));
+        ResponseAll<ResponseResult<Page<TaxInfoResponse>>> responseAll = new ResponseAll<>();
+        responseAll.setResponse(responseResult);
+        responseAll.setStatus(200);
+        return responseAll;
     }
 
     private String translateSafe(String text) {
@@ -194,7 +202,7 @@ public class TaxInfoService {
         return taxInfoRepository.findTaxInfoEntityById(id);
     }
 
-    public synchronized void updateTaxById(Long id, TaxInfoModel uz, TaxInfoModel ru) {
+    public synchronized ResponseAll<ResponseResult<String>> updateTaxById(Long id, TaxInfoModel uz, TaxInfoModel ru) {
         TaxInfoEntity taxInfoEntityById = findTaxInfoEntityById(id);
         taxInfoEntityById.setTaxType(uz.getTaxType());
         taxInfoEntityById.setReportName(uz.getReportName());
@@ -208,6 +216,12 @@ public class TaxInfoService {
         taxInfoEntityById.setDeleted(uz.isDeleted());
         taxInfoRepository.save(taxInfoEntityById);
         translateService.updateTranslated(uz, ru);
+        ResponseResult<String> result = new ResponseResult<>();
+        result.setResult("update successfully");
+        return ResponseAll.<ResponseResult<String>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 
     public synchronized void deleteAllTaxInfo() {
@@ -216,16 +230,22 @@ public class TaxInfoService {
         taxInfoRepository.truncateTaxInfo();
     }
 
-    public synchronized void deleteTaxById(Long id) {
+    public synchronized ResponseAll<ResponseResult<String>> deleteTaxById(Long id) {
         userService.deleteTaxInfo(id);
         taxInfoRepository.deleteTaxInfo(id);
+        ResponseResult<String> result = new ResponseResult<>();
+        result.setResult("delete successfully");
+        return ResponseAll.<ResponseResult<String>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 
     public synchronized void truncateTaxInfo() {
         taxInfoRepository.truncateTaxInfo();
     }
 
-    public void addTaxReport(TaxInfoModel uz, TaxInfoModel ru) {
+    public ResponseAll<ResponseResult<String>> addTaxReport(TaxInfoModel uz, TaxInfoModel ru) {
         TaxInfoEntity taxInfoEntity = new TaxInfoEntity();
         taxInfoEntity.setTaxType(uz.getTaxType());
         taxInfoEntity.setReportName(uz.getReportName());
@@ -239,6 +259,12 @@ public class TaxInfoService {
         taxInfoEntity.setDeleted(false);
         taxInfoRepository.save(taxInfoEntity);
         translateService.updateTranslated(uz, ru);
+        ResponseResult<String> result = new ResponseResult<>();
+        result.setResult("tax_info successfully added");
+        return ResponseAll.<ResponseResult<String>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 
 
@@ -246,7 +272,7 @@ public class TaxInfoService {
         return taxInfoRepository.findAllByTaxType(typeTax);
     }
 
-    public synchronized void addTaxesGroupServiceUz(Long chatId, GroupAddTaxRequest groupAddTaxRequest) {
+    public synchronized ResponseAll<ResponseResult<String>> addTaxesGroupServiceUz(Long chatId, GroupAddTaxRequest groupAddTaxRequest) {
         List<TaxInfoEntity> taxInfoEntityList = new LinkedList<>();
         for (TaxTypes taxType : groupAddTaxRequest.getTaxTypes()) {
             if (taxType.getChecked()) {
@@ -254,9 +280,15 @@ public class TaxInfoService {
             }
         }
         userService.addTaxesGroup(chatId, taxInfoEntityList);
+        ResponseResult<String> result = new ResponseResult<>();
+        result.setResult("add taxes successfully");
+        return ResponseAll.<ResponseResult<String>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 
-    public synchronized void addTaxesGroupServiceRu(Long chatId, GroupAddTaxRequest groupAddTaxRequest) {
+    public synchronized ResponseAll<ResponseResult<String>> addTaxesGroupServiceRu(Long chatId, GroupAddTaxRequest groupAddTaxRequest) {
         List<TaxInfoEntity> taxInfoEntityList = new LinkedList<>();
         for (TaxTypes taxType : groupAddTaxRequest.getTaxTypes()) {
             if (taxType.getChecked()) {
@@ -264,6 +296,12 @@ public class TaxInfoService {
             }
         }
         userService.addTaxesGroup(chatId, taxInfoEntityList);
+        ResponseResult<String> result = new ResponseResult<>();
+        result.setResult("add taxes successfully");
+        return ResponseAll.<ResponseResult<String>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 
 }

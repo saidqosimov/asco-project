@@ -5,7 +5,6 @@ import com.ascoproject.ascoproject.entity.UserEntity;
 import com.ascoproject.ascoproject.model.*;
 import com.ascoproject.ascoproject.repository.BotUserRepository;
 import com.ascoproject.ascoproject.repository.TaxInfoRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,7 @@ public class UserService {
     private final TaxInfoRepository taxInfoRepository;
 
     @Transactional(readOnly = true)
-    public synchronized Page<UserModel> getUsers(Pageable pageable) {
+    public synchronized ResponseAll<ResponseResult<Page<UserModel>>> getUsers(Pageable pageable) {
         if (!pageable.getSort().isSorted()) {
             pageable = PageRequest.of(
                     pageable.getPageNumber(),
@@ -46,11 +45,16 @@ public class UserService {
                         .taxes(getUserTaxes(userEntity.getChatId()))
                         .build()
                 ).toList();
-        return new PageImpl<>(userModels, pageable, botUsers.getTotalElements());
+        ResponseResult<Page<UserModel>> responseResult = new ResponseResult<>();
+        responseResult.setResult(new PageImpl<>(userModels, pageable, botUsers.getTotalElements()));
+        ResponseAll<ResponseResult<Page<UserModel>>> responseAll = new ResponseAll<>();
+        responseAll.setResponse(responseResult);
+        responseAll.setStatus(200);
+        return responseAll;
     }
 
     @Transactional(readOnly = true)
-    public synchronized Page<UserModel> getUsersRu(Pageable pageable) {
+    public synchronized ResponseAll<ResponseResult<Page<UserModel>>> getUsersRu(Pageable pageable) {
         if (!pageable.getSort().isSorted()) {
             pageable = PageRequest.of(
                     pageable.getPageNumber(),
@@ -73,7 +77,12 @@ public class UserService {
                         .taxes(getUserTaxesRu(userEntity.getChatId()))
                         .build()
                 ).toList();
-        return new PageImpl<>(userModels, pageable, botUsers.getTotalElements());
+        ResponseResult<Page<UserModel>> responseResult = new ResponseResult<>();
+        responseResult.setResult(new PageImpl<>(userModels, pageable, botUsers.getTotalElements()));
+        ResponseAll<ResponseResult<Page<UserModel>>> responseAll = new ResponseAll<>();
+        responseAll.setResponse(responseResult);
+        responseAll.setStatus(200);
+        return responseAll;
     }
 
     public synchronized List<String> getUserTaxes(Long chatId) {
@@ -110,13 +119,20 @@ public class UserService {
         botUserRepository.deleteAll();
     }
 
-    public synchronized void updateUserActivity(Long chatId, boolean isActive) {
+    public synchronized ResponseAll<ResponseResult<String>> updateUserActivity(Long chatId, boolean isActive) {
         UserEntity user = botUserRepository.findByChatId(chatId);
         user.setIsActive(isActive);
         botUserRepository.save(user);
+        ResponseResult<String> result = new ResponseResult<>();
+        result.setResult("update user's activity successfully");
+        return ResponseAll.<ResponseResult<String>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
+
     @Transactional(readOnly = true)
-    public synchronized Page<GroupModel> getGroups(Pageable pageable) {
+    public synchronized ResponseAll<ResponseResult<Page<GroupModel>>> getGroups(Pageable pageable) {
         if (!pageable.getSort().isSorted()) {
             pageable = PageRequest.of(
                     pageable.getPageNumber(),
@@ -146,62 +162,76 @@ public class UserService {
                             .build();
                 })
                 .toList();
-        return new PageImpl<>(groupModels, pageable, groupModels.size());
+        ResponseResult<Page<GroupModel>> responseResult = new ResponseResult<>();
+        responseResult.setResult(new PageImpl<>(groupModels, pageable, groupModels.size()));
+        ResponseAll<ResponseResult<Page<GroupModel>>> responseAll = new ResponseAll<>();
+        responseAll.setResponse(responseResult);
+        responseAll.setStatus(200);
+        return responseAll;
     }
-/*
-    @Transactional(readOnly = true)
-    public synchronized Page<GroupModel> getGroupsRu(Pageable pageable) {
-        if (!pageable.getSort().isSorted()) {
-            pageable = PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize(),
-                    Sort.by("id").ascending()
-            );
-        }
 
-        Page<UserEntity> botUsers = botUserRepository.findAll(pageable);
+    /*
+        @Transactional(readOnly = true)
+        public synchronized Page<GroupModel> getGroupsRu(Pageable pageable) {
+            if (!pageable.getSort().isSorted()) {
+                pageable = PageRequest.of(
+                        pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        Sort.by("id").ascending()
+                );
+            }
 
-        List<GroupModel> groupModels = botUsers.getContent().stream()
-                .filter(user -> String.valueOf(user.getChatId()).startsWith("-100")) // Guruhlar
-                .map(userEntity -> {
-                    TelegramChat chatInfo = telegramService.getChatInfo(userEntity.getChatId());
-                    return GroupModel.builder()
-                            .id(userEntity.getId())
-                            .groupId(userEntity.getChatId())
-                            .groupName(chatInfo != null ? chatInfo.getTitle() : null)
-                            .groupType(chatInfo != null ? chatInfo.getType() : null)
-                            .link(chatInfo != null ? chatInfo.getInviteLink() : null)
-                            .isActive(userEntity.getIsActive())
-                            .lang(userEntity.getLang())
-                            .threeDaysAgo(userEntity.getThreeDaysAgo())
-                            .twoDaysAgo(userEntity.getTwoDaysAgo())
-                            .theDayBefore(userEntity.getTheDayBefore())
-                            .countTaxInfo(getUserTaxes(userEntity.getChatId()).size())
-                            .taxes(getUserTaxesRu(userEntity.getChatId()))
-                            .build();
-                })
-                .toList();
-        return new PageImpl<>(groupModels, pageable, groupModels.size());
-    }*/
+            Page<UserEntity> botUsers = botUserRepository.findAll(pageable);
+
+            List<GroupModel> groupModels = botUsers.getContent().stream()
+                    .filter(user -> String.valueOf(user.getChatId()).startsWith("-100")) // Guruhlar
+                    .map(userEntity -> {
+                        TelegramChat chatInfo = telegramService.getChatInfo(userEntity.getChatId());
+                        return GroupModel.builder()
+                                .id(userEntity.getId())
+                                .groupId(userEntity.getChatId())
+                                .groupName(chatInfo != null ? chatInfo.getTitle() : null)
+                                .groupType(chatInfo != null ? chatInfo.getType() : null)
+                                .link(chatInfo != null ? chatInfo.getInviteLink() : null)
+                                .isActive(userEntity.getIsActive())
+                                .lang(userEntity.getLang())
+                                .threeDaysAgo(userEntity.getThreeDaysAgo())
+                                .twoDaysAgo(userEntity.getTwoDaysAgo())
+                                .theDayBefore(userEntity.getTheDayBefore())
+                                .countTaxInfo(getUserTaxes(userEntity.getChatId()).size())
+                                .taxes(getUserTaxesRu(userEntity.getChatId()))
+                                .build();
+                    })
+                    .toList();
+            return new PageImpl<>(groupModels, pageable, groupModels.size());
+        }*/
     public synchronized void addTaxesGroup(Long chatId, List<TaxInfoEntity> taxInfoEntities) {
         UserEntity group = botUserRepository.findByChatId(chatId);
         group.setTaxInfo(taxInfoEntities);
         botUserRepository.save(group);
     }
 
-    public void updateGroup(Long chatId, GroupUpdateRequest groupUpdateRequest) {
+    public ResponseAll<ResponseResult<String>> updateGroup(Long chatId, GroupUpdateRequest groupUpdateRequest) {
         UserEntity group = botUserRepository.findByChatId(chatId);
         group.setIsActive(groupUpdateRequest.getIsActive());
         group.setLang(groupUpdateRequest.getLang());
         group.setThreeDaysAgo(groupUpdateRequest.getThreeDaysAgo());
         group.setTwoDaysAgo(groupUpdateRequest.getTwoDaysAgo());
         group.setTheDayBefore(groupUpdateRequest.getTheDayBefore());
-        botUserRepository.save(group);    }
+        botUserRepository.save(group);
+        ResponseResult<String> result = new ResponseResult<>();
+        result.setResult("update group successfully");
+        return ResponseAll.<ResponseResult<String>>builder()
+                .response(result)
+                .status(200)
+                .build();
+    }
 
-    public GroupModel getGroup(Long chatId) {
+    public ResponseAll<ResponseResult<GroupModel>> getGroup(Long chatId) {
         UserEntity group = botUserRepository.findByChatId(chatId);
         TelegramChat chatInfo = telegramService.getChatInfo(chatId);
-        return GroupModel.builder()
+        ResponseResult<GroupModel> result = new ResponseResult<>();
+        result.setResult(GroupModel.builder()
                 .id(group.getId())
                 .groupId(group.getChatId())
                 .groupName(chatInfo != null ? chatInfo.getTitle() : null)
@@ -214,11 +244,18 @@ public class UserService {
                 .theDayBefore(group.getTheDayBefore())
                 .countTaxInfo(getUserTaxes(group.getChatId()).size())
                 .taxes(getGroupTaxTypesUz(chatId))
+                .build());
+        return ResponseAll.<ResponseResult<GroupModel>>builder()
+                .response(result)
+                .status(200)
                 .build();
-    }    public GroupModel getGroupRu(Long chatId) {
+    }
+
+    public ResponseAll<ResponseResult<GroupModel>> getGroupRu(Long chatId) {
         UserEntity group = botUserRepository.findByChatId(chatId);
         TelegramChat chatInfo = telegramService.getChatInfo(chatId);
-        return GroupModel.builder()
+        ResponseResult<GroupModel> result = new ResponseResult<>();
+        result.setResult(GroupModel.builder()
                 .id(group.getId())
                 .groupId(group.getChatId())
                 .groupName(chatInfo != null ? chatInfo.getTitle() : null)
@@ -231,8 +268,14 @@ public class UserService {
                 .theDayBefore(group.getTheDayBefore())
                 .countTaxInfo(getUserTaxes(group.getChatId()).size())
                 .taxes(getGroupTaxTypesRu(chatId))
+                .build());
+
+        return ResponseAll.<ResponseResult<GroupModel>>builder()
+                .response(result)
+                .status(200)
                 .build();
     }
+
     public List<TaxTypes> getGroupTaxTypesUz(Long chatId) {
         // Foydalanuvchining taxType'lari
         List<String> userTaxTypes = getUserTaxes(chatId);
@@ -255,6 +298,7 @@ public class UserService {
                 })
                 .toList();
     }
+
     public List<TaxTypes> getGroupTaxTypesRu(Long chatId) {
         // Foydalanuvchining taxType'lari
         List<String> userTaxTypes = getUserTaxesRu(chatId);
@@ -280,9 +324,10 @@ public class UserService {
                 .toList();
     }
 
-    public UserModel getUser(Long chatId){
+    public ResponseAll<ResponseResult<UserModel>> getUser(Long chatId) {
         UserEntity user = botUserRepository.findByChatId(chatId);
-        return UserModel.builder()
+        ResponseResult<UserModel> result = new ResponseResult<>();
+        result.setResult(UserModel.builder()
                 .id(user.getId())
                 .chatId(user.getChatId())
                 .isActive(user.getIsActive())
@@ -292,6 +337,10 @@ public class UserService {
                 .twoDaysAgo(user.getTwoDaysAgo())
                 .theDayBefore(user.getTheDayBefore())
                 .countTaxInfo(getUserTaxes(chatId).size())
+                .build());
+        return ResponseAll.<ResponseResult<UserModel>>builder()
+                .response(result)
+                .status(200)
                 .build();
     }
 }

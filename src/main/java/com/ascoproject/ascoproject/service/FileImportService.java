@@ -3,8 +3,8 @@ package com.ascoproject.ascoproject.service;
 import com.ascoproject.ascoproject.entity.InfoEntity;
 import com.ascoproject.ascoproject.entity.TaxInfoEntity;
 import com.ascoproject.ascoproject.entity.TranslateEntity;
-import com.ascoproject.ascoproject.repository.TaxInfoRepository;
-import com.ascoproject.ascoproject.repository.TranslateRepository;
+import com.ascoproject.ascoproject.model.ResponseAll;
+import com.ascoproject.ascoproject.model.ResponseResult;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,7 +26,7 @@ public class FileImportService {
     private final InfoEntityService infoEntityService;
 
 
-    public void exportTaxReportCsv(HttpServletResponse response) throws IOException {
+    public ResponseAll<ResponseResult<String>> exportTaxReportCsv(HttpServletResponse response) throws IOException {
         List<TaxInfoEntity> taxInfoList = taxInfoService.findAll();
 
         try (PrintWriter writer = response.getWriter()) {
@@ -56,6 +56,12 @@ public class FileImportService {
                 ));
             }
         }
+        ResponseResult<String> result = new ResponseResult<>();
+        result.setResult("exported successfully");
+        return ResponseAll.<ResponseResult<String>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 
     private String safe(String val) {
@@ -64,40 +70,46 @@ public class FileImportService {
         return "\"" + escaped + "\"";
     }
 
-    public void importInfoEntityCsv(MultipartFile file) throws IOException {
-        try (CSVReader reader = new CSVReader(new InputStreamReader(file.getInputStream()))) {
-            List<InfoEntity> infoEntityList = new LinkedList<>();
-            String[] headers = reader.readNext();
-            Set<TranslateEntity> translateEntitySet = new HashSet<>();
-            Map<String, Integer> headerMap = new HashMap<>();
-            for (int i = 0; i < headers.length; i++) {
-                headerMap.put(headers[i].trim().toLowerCase(), i);
-            }
-            String[] line;
-            while ((line = reader.readNext()) != null) {
-                InfoEntity infoEntity = InfoEntity.builder()
-                        .typeOfTax(line[headerMap.get("tax_of_type")])
-                        .fullInfo(line[headerMap.get("full_info")])
-                        .build();
-                infoEntityList.add(infoEntity);
-                translateEntitySet.add(TranslateEntity.builder()
-                        .uz(line[headerMap.get("type_of_tax")])
-                        .ru(line[headerMap.get("type_of_tax_ru")])
-                        .build());
-                translateEntitySet.add(TranslateEntity.builder()
-                        .uz(line[headerMap.get("full_info")])
-                        .ru(line[headerMap.get("full_info_ru")])
-                        .build());
-            }
-            infoEntityService.deleteAll();
-            infoEntityService.saveAll(infoEntityList);
-            translateService.setTranslateRepository(translateEntitySet.stream().toList());
-        } catch (CsvValidationException e) {
-            throw new RuntimeException(e);
+    public ResponseAll<ResponseResult<String>> importInfoEntityCsv(MultipartFile file) throws IOException, CsvValidationException {
+        /* try (CSVReader reader = new CSVReader(new InputStreamReader(file.getInputStream()))) {*/
+        CSVReader reader = new CSVReader(new InputStreamReader(file.getInputStream()));
+        List<InfoEntity> infoEntityList = new LinkedList<>();
+        String[] headers = reader.readNext();
+        Set<TranslateEntity> translateEntitySet = new HashSet<>();
+        Map<String, Integer> headerMap = new HashMap<>();
+        for (int i = 0; i < headers.length; i++) {
+            headerMap.put(headers[i].trim().toLowerCase(), i);
         }
-    }
+        String[] line;
+        while ((line = reader.readNext()) != null) {
+            InfoEntity infoEntity = InfoEntity.builder()
+                    .typeOfTax(line[headerMap.get("tax_of_type")])
+                    .fullInfo(line[headerMap.get("full_info")])
+                    .build();
+            infoEntityList.add(infoEntity);
+            translateEntitySet.add(TranslateEntity.builder()
+                    .uz(line[headerMap.get("type_of_tax")])
+                    .ru(line[headerMap.get("type_of_tax_ru")])
+                    .build());
+            translateEntitySet.add(TranslateEntity.builder()
+                    .uz(line[headerMap.get("full_info")])
+                    .ru(line[headerMap.get("full_info_ru")])
+                    .build());
+        }
+        infoEntityService.deleteAll();
+        infoEntityService.saveAll(infoEntityList);
+        translateService.setTranslateRepository(translateEntitySet.stream().toList());
+        ResponseResult<String> result = new ResponseResult<>();
+        result.setResult("imported successfully");
+        return ResponseAll.<ResponseResult<String>>builder()
+                .response(result)
+                .status(200)
+                .build();
+    }/* catch (CsvValidationException e) {
+            throw new RuntimeException(e);
+        }}*/
 
-    public void importCsv(MultipartFile file) throws Exception {
+    public ResponseAll<ResponseResult<String>> importCsv(MultipartFile file) throws Exception {
         try (CSVReader reader = new CSVReader(new InputStreamReader(file.getInputStream()))) {
             List<TaxInfoEntity> taxInfoEntities = new LinkedList<>();
             String[] headers = reader.readNext(); // 1-qator: header
@@ -156,9 +168,15 @@ public class FileImportService {
             taxInfoService.saveAll(taxInfoEntities);
             translateService.setTranslateRepository(translateEntities.stream().toList());
         }
+        ResponseResult<String> result = new ResponseResult<>();
+        result.setResult("imported successfully");
+        return ResponseAll.<ResponseResult<String>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 
-    public void exportInfoEntityCsv(HttpServletResponse response) throws IOException {
+    public ResponseAll<ResponseResult<String>> exportInfoEntityCsv(HttpServletResponse response) throws IOException {
         List<InfoEntity> infoEntities = infoEntityService.findAll();
         try (PrintWriter writer = response.getWriter()) {
             writer.println("type_of_tax,type_of_tax_ru,full_info,full_info_ru");
@@ -171,5 +189,11 @@ public class FileImportService {
                 ));
             }
         }
+        ResponseResult<String> result = new ResponseResult<>();
+        result.setResult("exported successfully");
+        return ResponseAll.<ResponseResult<String>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 }

@@ -2,6 +2,8 @@ package com.ascoproject.ascoproject.controller;
 
 import com.ascoproject.ascoproject.model.AuthenticationRequest;
 import com.ascoproject.ascoproject.model.AuthenticationResponse;
+import com.ascoproject.ascoproject.model.ResponseAll;
+import com.ascoproject.ascoproject.model.ResponseResult;
 import com.ascoproject.ascoproject.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +19,9 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
-        return ResponseEntity.ok(authenticationService.authenticate(request));
+    public ResponseEntity<ResponseResult<AuthenticationResponse>> authenticate(@RequestBody AuthenticationRequest request){
+        ResponseAll<ResponseResult<AuthenticationResponse>> authenticate = authenticationService.authenticate(request);
+        return ResponseEntity.status(authenticate.getStatus()).body(authenticate.getResponse());
     }
 
 }
