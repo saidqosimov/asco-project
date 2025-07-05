@@ -18,6 +18,7 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
   servlet:
     multipart:
       max-request-size: 10MB
