@@ -17,8 +17,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+
 @SecurityRequirement(name = "bearerAuth")
 @RestController
+@CrossOrigin
 @RequestMapping("/api/v1/bot")
 @RequiredArgsConstructor
 public class BotController {
@@ -27,27 +29,94 @@ public class BotController {
     private final InfoEntityService infoEntityService;
     private final UserService userService;
 
-    @GetMapping("/tax-report-list/uz/page")
-    public ResponseEntity<ResponseResult<Page<TaxInfoResponse>>> getTaxReportListPagingUz(Pageable pageable) {
-        ResponseAll<ResponseResult<Page<TaxInfoResponse>>> result = taxInfoService.findAll(pageable);
+    @GetMapping("/tax-report-list/page")
+    public ResponseEntity<ResponseResult<Page<TaxInfoResponse>>> getTaxReportListPaging(
+            @RequestHeader(value = "Accept-Language", defaultValue = "uz") String lang,
+            Pageable pageable) {
+        var result = "ru".equalsIgnoreCase(lang)
+                ? taxInfoService.findAllRu(pageable)
+                : taxInfoService.findAll(pageable);
         return ResponseEntity.status(result.getStatus()).body(result.getResponse());
     }
 
-    @GetMapping("/tax-report-list/ru/page")
-    public ResponseEntity<ResponseResult<Page<TaxInfoResponse>>> getTaxReportListPagingRu(Pageable pageable) {
-        ResponseAll<ResponseResult<Page<TaxInfoResponse>>> result = taxInfoService.findAllRu(pageable);
+    @GetMapping("/info-entity-list/page")
+    public ResponseEntity<ResponseResult<Page<InfoEntity>>> getInfoEntityListPaging(
+            @RequestHeader(value = "Accept-Language", defaultValue = "uz") String lang,
+            Pageable pageable) {
+        var result = "ru".equalsIgnoreCase(lang)
+                ? infoEntityService.findAllRu(pageable)
+                : infoEntityService.findAll(pageable);
         return ResponseEntity.status(result.getStatus()).body(result.getResponse());
     }
 
-    @GetMapping("/info-entity-list/uz/page")
-    public ResponseEntity<ResponseResult<Page<InfoEntity>>> getInfoEntityListPagingUz(Pageable pageable) {
-        ResponseAll<ResponseResult<Page<InfoEntity>>> result = infoEntityService.findAll(pageable);
+    @GetMapping("/get-users/page")
+    public ResponseEntity<ResponseResult<Page<UserModel>>> getUsers(
+            @RequestHeader(value = "Accept-Language", defaultValue = "uz") String lang,
+            Pageable pageable) {
+        var result = "ru".equalsIgnoreCase(lang)
+                ? userService.getUsersRu(pageable)
+                : userService.getUsers(pageable);
         return ResponseEntity.status(result.getStatus()).body(result.getResponse());
     }
 
-    @GetMapping("/info-entity-list/ru/page")
-    public ResponseEntity<ResponseResult<Page<InfoEntity>>> getInfoEntityListPagingRu(Pageable pageable) {
-        ResponseAll<ResponseResult<Page<InfoEntity>>> result = infoEntityService.findAllRu(pageable);
+    @GetMapping("/get-groups/page")
+    public ResponseEntity<ResponseResult<Page<GroupModel>>> getGroups(
+            @RequestHeader(value = "Accept-Language", defaultValue = "uz") String lang,
+            Pageable pageable) {
+        var result = userService.getGroups(pageable);
+
+        /*        var result = "ru".equalsIgnoreCase(lang)
+                ? userService.getGroupsRu(pageable)
+                : userService.getGroups(pageable);*/
+        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
+    }
+
+    @GetMapping("/get-taxes-choose")
+    public ResponseEntity<ResponseResult<List<String>>> getTaxesChoose(
+            @RequestHeader(value = "Accept-Language", defaultValue = "uz") String lang) {
+        var result = "ru".equalsIgnoreCase(lang)
+                ? taxInfoService.getTaxTypesRu()
+                : taxInfoService.getTaxTypesUz();
+        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
+    }
+
+    @PostMapping("/add-group-taxes/{chatId}")
+    public ResponseEntity<ResponseResult<?>> addGroupTaxes(
+            @RequestHeader(value = "Accept-Language", defaultValue = "uz") String lang,
+            @PathVariable Long chatId,
+            @RequestBody GroupAddTaxRequest groupAddTaxRequest) {
+        var result = "ru".equalsIgnoreCase(lang)
+                ? taxInfoService.addTaxesGroupServiceRu(chatId, groupAddTaxRequest)
+                : taxInfoService.addTaxesGroupServiceUz(chatId, groupAddTaxRequest);
+        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
+    }
+
+    @GetMapping("/get-group/{chatId}")
+    public ResponseEntity<ResponseResult<GroupModel>> getGroup(
+            @RequestHeader(value = "Accept-Language", defaultValue = "uz") String lang,
+            @PathVariable Long chatId) {
+        var result = "ru".equalsIgnoreCase(lang)
+                ? userService.getGroupRu(chatId)
+                : userService.getGroup(chatId);
+        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
+    }
+
+
+    @PutMapping("/group-update/{chatId}")
+    public ResponseEntity<ResponseResult<?>> updateGroup(@PathVariable Long chatId, @RequestBody GroupUpdateRequest groupUpdateRequest) {
+        ResponseAll<ResponseResult<String>> result = userService.updateGroup(chatId, groupUpdateRequest);
+        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
+    }
+
+    @GetMapping("/get-user/{chatId}")
+    public ResponseEntity<ResponseResult<UserModel>> getUser(@PathVariable Long chatId) {
+        ResponseAll<ResponseResult<UserModel>> result = userService.getUser(chatId);
+        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
+    }
+
+    @PutMapping("/user-update/{chatId}")
+    public ResponseEntity<ResponseResult<?>> updateUser(@PathVariable Long chatId, @RequestBody UserUpdateRequest userUpdateRequest) {
+        ResponseAll<ResponseResult<String>> result = userService.updateUserActivity(chatId, userUpdateRequest.getIsActive());
         return ResponseEntity.status(result.getStatus()).body(result.getResponse());
     }
 
@@ -86,16 +155,6 @@ public class BotController {
         ResponseAll<ResponseResult<String>> result = taxInfoService.addTaxReport(taxInfoUpdateModel.getUz(), taxInfoUpdateModel.getRu());
         return ResponseEntity.status(result.getStatus()).body(result.getResponse());
     }
-/*
-    @GetMapping("/info-list/uz")
-    public ResponseEntity<String> getInfoListUz() {
-        return ResponseEntity.ok("Info List");
-    }
-
-    @GetMapping("/info-list/ru")
-    public ResponseEntity<String> getInfoListRu() {
-        return ResponseEntity.ok("Info List");
-    }*/
 
     @PostMapping("/import-tax-info-csv")
     public ResponseEntity<ResponseResult<?>> uploadTaxInfoCsv(@RequestParam("file") MultipartFile file) throws Exception {
@@ -103,7 +162,7 @@ public class BotController {
         return ResponseEntity.status(result.getStatus()).body(result.getResponse());
     }
 
-    @GetMapping("/export-tax-info")
+    @GetMapping("/export-tax-info-csv")
     public ResponseEntity<ResponseResult<?>> exportTaxInfoToCsv(HttpServletResponse response) throws IOException {
         response.setContentType("text/csv; charset=UTF-8");
         response.setHeader("Content-Disposition", "attachment; filename=\"tax_info.csv\"");
@@ -117,89 +176,11 @@ public class BotController {
         return ResponseEntity.status(result.getStatus()).body(result.getResponse());
     }
 
-    @GetMapping("/export-info-entity")
+    @GetMapping("/export-info-entity-csv")
     public ResponseEntity<ResponseResult<?>> exportInfoEntityToCsv(HttpServletResponse response) throws IOException {
         response.setContentType("text/csv; charset=UTF-8");
         response.setHeader("Content-Disposition", "attachment; filename=\"info_entity.csv\"");
         ResponseAll<ResponseResult<String>> result = fileImportService.exportInfoEntityCsv(response);
-        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
-    }
-
-    @GetMapping("/get-users/uz/page")
-    public ResponseEntity<ResponseResult<Page<UserModel>>> getUsers(Pageable pageable) {
-        ResponseAll<ResponseResult<Page<UserModel>>> result = userService.getUsers(pageable);
-        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
-    }
-
-    @GetMapping("/get-users/ru/page")
-    public ResponseEntity<ResponseResult<Page<UserModel>>> getUsersRu(Pageable pageable) {
-        ResponseAll<ResponseResult<Page<UserModel>>> result = userService.getUsersRu(pageable);
-        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
-    }
-
-    @GetMapping("/get-groups/uz/page")
-    public ResponseEntity<ResponseResult<Page<GroupModel>>> getGroups(Pageable pageable) {
-        ResponseAll<ResponseResult<Page<GroupModel>>> result = userService.getGroups(pageable);
-        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
-    }
-
-    @GetMapping("/get-groups/ru/page")
-    public ResponseEntity<ResponseResult<Page<GroupModel>>> getGroupsRu(Pageable pageable) {
-        ResponseAll<ResponseResult<Page<GroupModel>>> result = userService.getGroups(pageable);
-        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
-    }
-
-    @GetMapping("/get-taxes-choose/uz")
-    public ResponseEntity<ResponseResult<List<String>>> getTaxesChooseUz() {
-        ResponseAll<ResponseResult<List<String>>> result = taxInfoService.getTaxTypesUz();
-        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
-    }
-
-    @GetMapping("/get-taxes-choose/ru")
-    public ResponseEntity<List<String>> getTaxesChooseRu() {
-        List<String> taxTypesUz = taxInfoService.getTaxTypesRu();
-        return ResponseEntity.ok(taxTypesUz);
-    }
-
-    @PostMapping("/add-group-taxes/uz/{chatId}")
-    public ResponseEntity<ResponseResult<?>> addGroupTaxesUz(@PathVariable Long chatId, @RequestBody GroupAddTaxRequest groupAddTaxRequest) {
-        ResponseAll<ResponseResult<String>> result = taxInfoService.addTaxesGroupServiceUz(chatId, groupAddTaxRequest);
-        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
-    }
-
-    @PostMapping("/add-group-taxes/ru/{chatId}")
-    public ResponseEntity<ResponseResult<?>> addGroupTaxesRu(@PathVariable Long chatId, @RequestBody GroupAddTaxRequest groupAddTaxRequest) {
-        ResponseAll<ResponseResult<String>> result = taxInfoService.addTaxesGroupServiceRu(chatId, groupAddTaxRequest);
-        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
-    }
-
-    @GetMapping("/get-group/uz/{chatId}")
-    public ResponseEntity<ResponseResult<GroupModel>> getGroup(@PathVariable Long chatId) {
-        ResponseAll<ResponseResult<GroupModel>> result = userService.getGroup(chatId);
-        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
-    }
-
-    @GetMapping("/get-group/ru/{chatId}")
-    public ResponseEntity<ResponseResult<GroupModel>> getGroupRu(@PathVariable Long chatId) {
-        ResponseAll<ResponseResult<GroupModel>> result = userService.getGroupRu(chatId);
-        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
-    }
-
-    @PutMapping("/group-update/{chatId}")
-    public ResponseEntity<ResponseResult<?>> updateGroup(@PathVariable Long chatId, @RequestBody GroupUpdateRequest groupUpdateRequest) {
-        ResponseAll<ResponseResult<String>> result = userService.updateGroup(chatId, groupUpdateRequest);
-        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
-    }
-
-    @GetMapping("/get-user/{chatId}")
-    public ResponseEntity<ResponseResult<UserModel>> getUser(@PathVariable Long chatId) {
-        ResponseAll<ResponseResult<UserModel>> result = userService.getUser(chatId);
-        return ResponseEntity.status(result.getStatus()).body(result.getResponse());
-    }
-
-    @PutMapping("/user-update/{chatId}")
-    public ResponseEntity<ResponseResult<?>> updateUser(@PathVariable Long chatId, @RequestBody UserUpdateRequest userUpdateRequest) {
-        ResponseAll<ResponseResult<String>> result = userService.updateUserActivity(chatId, userUpdateRequest.getIsActive());
         return ResponseEntity.status(result.getStatus()).body(result.getResponse());
     }
 

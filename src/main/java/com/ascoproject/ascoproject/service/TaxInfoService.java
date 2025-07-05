@@ -113,15 +113,20 @@ public class TaxInfoService {
                 .build();
     }
 
-    public List<String> getTaxTypesRu() {
-        return taxInfoRepository.findAllTaxInfo().stream()
+    public ResponseAll<ResponseResult<List<String>>> getTaxTypesRu() {
+        ResponseResult<List<String>> result = new ResponseResult<>();
+        result.setResult(taxInfoRepository.findAllTaxInfo().stream()
                 .map(TaxInfoEntity::getTaxType)
                 .filter(Objects::nonNull)
                 .map(translateService::translate) // 🔁 ruscha tarjima
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(LinkedHashSet::new)) // tartibni saqlaydi, dublikat yo'q
                 .stream()
-                .toList();
+                .toList());
+        return ResponseAll.<ResponseResult<List<String>>>builder()
+                .response(result)
+                .status(200)
+                .build();
     }
 
 
