@@ -4,9 +4,9 @@ telegram:
     admin: 5540407547
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://crossover.proxy.rlwy.net:46893/railway
     username: postgres
-    password: 1
+    password: xrXruzHHhbJlhOqYKMUIjPtPkdXQrrDI
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
