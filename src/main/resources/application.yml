@@ -1,6 +1,7 @@
 telegram:
   bot:
     token: 7163511047:AAFtyJ5r6V6OX3iDsKOnXgHlZRTK5eglaSg
+    admin: 5540407547
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
