@@ -1,4 +1,4 @@
-package com.ascoproject.ascoproject.model;
+package com.ascoproject.ascoproject.model.infoentity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class TaxInfoUpdateModel {
-    private TaxInfoModel uz;
-    private TaxInfoModel ru;
+public class InfoEntityUpdateModel {
+    private InfoEntityModel uz;
+    private InfoEntityModel ru;
 }

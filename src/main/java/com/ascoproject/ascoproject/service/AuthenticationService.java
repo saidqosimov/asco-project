@@ -1,14 +1,13 @@
 package com.ascoproject.ascoproject.service;
 
-import com.ascoproject.ascoproject.model.AuthenticationRequest;
-import com.ascoproject.ascoproject.model.AuthenticationResponse;
-import com.ascoproject.ascoproject.model.ResponseAll;
-import com.ascoproject.ascoproject.model.ResponseResult;
+import com.ascoproject.ascoproject.model.auth.AuthenticationRequest;
+import com.ascoproject.ascoproject.model.auth.AuthenticationResponse;
+import com.ascoproject.ascoproject.model.responce.ResponseAll;
+import com.ascoproject.ascoproject.model.responce.ResponseResult;
 import com.ascoproject.ascoproject.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -1,14 +1,15 @@
-package com.ascoproject.ascoproject.model;
+package com.ascoproject.ascoproject.model.responce;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponse {
-    private String token;
+@Data
+@Builder
+public class ResponseAll<T> {
+    private T response;
+    private int status;
 }

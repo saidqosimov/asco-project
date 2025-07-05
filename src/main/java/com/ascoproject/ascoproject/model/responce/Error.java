@@ -1,4 +1,5 @@
-package com.ascoproject.ascoproject.model;
+package com.ascoproject.ascoproject.model.responce;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,7 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class InfoEntityUpdateModel {
-    private InfoEntityModel uz;
-    private InfoEntityModel ru;
+public class Error {
+
+    private Integer errorCode;
+
+    private String errorMessage;
 }

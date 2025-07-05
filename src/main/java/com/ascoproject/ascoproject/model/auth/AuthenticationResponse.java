@@ -1,16 +1,14 @@
-package com.ascoproject.ascoproject.model;
+package com.ascoproject.ascoproject.model.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Data
-
-public class GroupAddTaxRequest {
-    private List<TaxTypes> taxTypes;
+public class AuthenticationResponse {
+    private String token;
 }

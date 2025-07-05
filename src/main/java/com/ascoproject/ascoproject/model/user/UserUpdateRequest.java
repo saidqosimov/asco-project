@@ -1,4 +1,4 @@
-package com.ascoproject.ascoproject.model;
+package com.ascoproject.ascoproject.model.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class Error {
-
-    private Integer errorCode;
-
-    private String errorMessage;
+public class UserUpdateRequest {
+    private Boolean isActive;
 }

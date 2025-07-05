@@ -1,9 +1,9 @@
 package com.ascoproject.ascoproject.service;
 
 import com.ascoproject.ascoproject.entity.InfoEntity;
-import com.ascoproject.ascoproject.model.InfoEntityModel;
-import com.ascoproject.ascoproject.model.ResponseAll;
-import com.ascoproject.ascoproject.model.ResponseResult;
+import com.ascoproject.ascoproject.model.infoentity.InfoEntityModel;
+import com.ascoproject.ascoproject.model.responce.ResponseAll;
+import com.ascoproject.ascoproject.model.responce.ResponseResult;
 import com.ascoproject.ascoproject.repository.InfoEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;

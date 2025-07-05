@@ -1,30 +1,27 @@
-package com.ascoproject.ascoproject.model;
+package com.ascoproject.ascoproject.model.user;
 
 import com.ascoproject.ascoproject.entity.Languages;
-
-import java.util.List;
-
+import com.ascoproject.ascoproject.entity.UserStep;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class GroupModel {
+public class UserModel {
     private Long id;
-    private Long groupId;
-    private String groupName;
-    private String groupType;
-    private String link;
+    private Long chatId;
     private Boolean isActive;
+    private UserStep step;
     private Languages lang;
     private Boolean threeDaysAgo;
     private Boolean twoDaysAgo;
     private Boolean theDayBefore;
     private Integer countTaxInfo;
-    private List<TaxTypes> taxes;
+    private List<String> taxes;
 }

@@ -1,4 +1,4 @@
-package com.ascoproject.ascoproject.model;
+package com.ascoproject.ascoproject.model.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class UserUpdateRequest {
-    private Boolean isActive;
+public class AuthenticationRequest {
+    private String username;
+    private String password;
 }

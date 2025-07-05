@@ -1,4 +1,4 @@
-package com.ascoproject.ascoproject.model;
+package com.ascoproject.ascoproject.model.group;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

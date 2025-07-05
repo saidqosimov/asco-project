@@ -1,7 +1,12 @@
 package com.ascoproject.ascoproject.service;
 
 import com.ascoproject.ascoproject.entity.TaxInfoEntity;
-import com.ascoproject.ascoproject.model.*;
+import com.ascoproject.ascoproject.model.group.GroupAddTaxRequest;
+import com.ascoproject.ascoproject.model.group.TaxTypes;
+import com.ascoproject.ascoproject.model.responce.ResponseAll;
+import com.ascoproject.ascoproject.model.responce.ResponseResult;
+import com.ascoproject.ascoproject.model.taxinfo.TaxInfoModel;
+import com.ascoproject.ascoproject.model.taxinfo.TaxInfoResponse;
 import com.ascoproject.ascoproject.repository.TaxInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;

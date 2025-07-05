@@ -1,6 +1,6 @@
 package com.ascoproject.ascoproject.controller;
 
-import com.ascoproject.ascoproject.model.ResponseResult;
+import com.ascoproject.ascoproject.model.responce.ResponseResult;
 import com.opencsv.exceptions.CsvValidationException;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
-import com.ascoproject.ascoproject.model.Error;
+import com.ascoproject.ascoproject.model.responce.Error;
 
 import java.io.IOException;
 

@@ -1,8 +1,8 @@
 package com.ascoproject.ascoproject.service;
 
 import com.ascoproject.ascoproject.entity.TranslateEntity;
-import com.ascoproject.ascoproject.model.InfoEntityModel;
-import com.ascoproject.ascoproject.model.TaxInfoModel;
+import com.ascoproject.ascoproject.model.infoentity.InfoEntityModel;
+import com.ascoproject.ascoproject.model.taxinfo.TaxInfoModel;
 import com.ascoproject.ascoproject.repository.TranslateRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.ascoproject.ascoproject.model;
+package com.ascoproject.ascoproject.model.group;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

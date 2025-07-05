@@ -1,9 +1,9 @@
 package com.ascoproject.ascoproject.controller;
 
-import com.ascoproject.ascoproject.model.AuthenticationRequest;
-import com.ascoproject.ascoproject.model.AuthenticationResponse;
-import com.ascoproject.ascoproject.model.ResponseAll;
-import com.ascoproject.ascoproject.model.ResponseResult;
+import com.ascoproject.ascoproject.model.auth.AuthenticationRequest;
+import com.ascoproject.ascoproject.model.auth.AuthenticationResponse;
+import com.ascoproject.ascoproject.model.responce.ResponseAll;
+import com.ascoproject.ascoproject.model.responce.ResponseResult;
 import com.ascoproject.ascoproject.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

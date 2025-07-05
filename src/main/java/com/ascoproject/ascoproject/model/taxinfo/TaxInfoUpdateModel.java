@@ -1,5 +1,4 @@
-package com.ascoproject.ascoproject.model;
-
+package com.ascoproject.ascoproject.model.taxinfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class ResponseResult<T> {
-    private T result;
-    private Error error;
+public class TaxInfoUpdateModel {
+    private TaxInfoModel uz;
+    private TaxInfoModel ru;
 }
