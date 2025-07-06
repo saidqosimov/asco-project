@@ -32,7 +32,7 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .servers(List.of(
-                        new Server().url("https://asco.up.railway.app").url("http://localhost")
+                        new Server().url("https://asco.up.railway.app")
 
                 ));
     }
