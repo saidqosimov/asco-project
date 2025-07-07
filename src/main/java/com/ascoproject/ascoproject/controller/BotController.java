@@ -15,11 +15,16 @@ import com.ascoproject.ascoproject.service.FileImportService;
 import com.ascoproject.ascoproject.service.InfoEntityService;
 import com.ascoproject.ascoproject.service.TaxInfoService;
 import com.ascoproject.ascoproject.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -165,11 +170,18 @@ public class BotController {
         return ResponseEntity.status(result.getStatus()).body(result.getResponse());
     }
 
-    @PostMapping("/import-tax-info-csv")
-    public ResponseEntity<ResponseResult<?>> uploadTaxInfoCsv(@RequestParam("file") MultipartFile file) throws Exception {
+    @Operation(summary = "Import CSV file", description = "Upload tax info from a CSV file")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully uploaded")
+    })
+    @PostMapping(value = "/import-tax-info-csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResponseResult<?>> uploadTaxInfoCsv(
+            @Parameter(description = "CSV file", required = true)
+            @RequestParam("file") MultipartFile file) throws Exception {
         ResponseAll<ResponseResult<String>> result = fileImportService.importCsv(file);
         return ResponseEntity.status(result.getStatus()).body(result.getResponse());
     }
+
 
     @GetMapping("/export-tax-info-csv")
     public ResponseEntity<ResponseResult<?>> exportTaxInfoToCsv(HttpServletResponse response) throws IOException {
@@ -179,8 +191,13 @@ public class BotController {
         return ResponseEntity.status(result.getStatus()).body(result.getResponse());
     }
 
-    @PostMapping("/import-info-entity-csv")
-    public ResponseEntity<ResponseResult<?>> uploadInfoEntityCsv(@RequestParam("file") MultipartFile file) throws Exception {
+    @Operation(summary = "Import CSV file", description = "Upload info entity from a CSV file")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully uploaded")
+    })
+    @PostMapping(value = "/import-info-entity-csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResponseResult<?>> uploadInfoEntityCsv(@Parameter(description = "CSV file", required = true)
+                                                                 @RequestParam("file") MultipartFile file) throws Exception {
         ResponseAll<ResponseResult<String>> result = fileImportService.importInfoEntityCsv(file);
         return ResponseEntity.status(result.getStatus()).body(result.getResponse());
     }
