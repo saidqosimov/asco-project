@@ -119,15 +119,18 @@ public class TaxInfoService {
     }
 
     public ResponseAll<ResponseResult<List<String>>> getTaxTypesRu() {
+        List<String> taxTypes = taxInfoRepository.findAllTaxTypes();
+        List<String> taxTypesRu = new ArrayList<>();
+
+        for(String taxType: taxTypes) {
+            taxTypesRu.add(translateSafe(taxType));
+        }
+
         ResponseResult<List<String>> result = new ResponseResult<>();
-        result.setResult(taxInfoRepository.findAllTaxInfo().stream()
-                .map(TaxInfoEntity::getTaxType)
-                .filter(Objects::nonNull)
-                .map(translateService::translate) // 🔁 ruscha tarjima
-                .filter(Objects::nonNull)
-                .collect(Collectors.toCollection(LinkedHashSet::new)) // tartibni saqlaydi, dublikat yo'q
-                .stream()
-                .toList());
+        result.setResult(taxTypesRu);
+
+
+
         return ResponseAll.<ResponseResult<List<String>>>builder()
                 .response(result)
                 .status(200)

@@ -29,4 +29,8 @@ public interface TaxInfoRepository extends JpaRepository<TaxInfoEntity, Long> {
 
     List<TaxInfoEntity> findAllByTaxType(String typeTax);
 
+    @Query("SELECT t.taxType FROM TaxInfoEntity t WHERE t.taxType IS NOT NULL")
+    List<String> findAllTaxTypes();
+
+
 }

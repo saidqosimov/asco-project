@@ -83,7 +83,7 @@ public class FileImportService {
         String[] line;
         while ((line = reader.readNext()) != null) {
             InfoEntity infoEntity = InfoEntity.builder()
-                    .typeOfTax(line[headerMap.get("tax_of_type")])
+                    .typeOfTax(line[headerMap.get("type_of_tax")])
                     .fullInfo(line[headerMap.get("full_info")])
                     .build();
             infoEntityList.add(infoEntity);
