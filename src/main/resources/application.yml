@@ -1,12 +1,12 @@
 telegram:
   bot:
-    token: token
+    token: ${BOT_TOKEN}
     admin: 5540407547
 spring:
   datasource:
     url: jdbc:postgresql://crossover.proxy.rlwy.net:46893/railway
     username: postgres
-    password: password
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
