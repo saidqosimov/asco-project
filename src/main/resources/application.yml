@@ -1,12 +1,12 @@
 telegram:
   bot:
-    token: 7163511047:AAFtyJ5r6V6OX3iDsKOnXgHlZRTK5eglaSg
+    token: token
     admin: 5540407547
 spring:
   datasource:
     url: jdbc:postgresql://crossover.proxy.rlwy.net:46893/railway
     username: postgres
-    password: xrXruzHHhbJlhOqYKMUIjPtPkdXQrrDI
+    password: password
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
