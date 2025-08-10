@@ -4,9 +4,9 @@ telegram:
     admin: 5540407547
 spring:
   datasource:
-    url: jdbc:postgresql://${{PGHOST}}:${{PGPORT}}/${{PGDATABASE}}
-    username: ${{PGUSER}}
-    password: ${{POSTGRES_PASSWORD}}
+    url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
+    username: ${PGUSER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
