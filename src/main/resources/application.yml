@@ -1,6 +1,6 @@
 telegram:
   bot:
-    token: 7163511047:AAFtyJ5r6V6OX3iDsKOnXgHlZRTK5eglaSg
+    token: ${BOT_TOKEN}
     admin: 5540407547
 spring:
   datasource:
