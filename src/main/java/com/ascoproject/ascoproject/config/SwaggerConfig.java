@@ -34,7 +34,6 @@ public class SwaggerConfig {
                 .servers(List.of(
                         new Server().url("https://asco.up.railway.app"),
                         new Server().url("http://localhost:8085")
-
                 ));
     }
 
