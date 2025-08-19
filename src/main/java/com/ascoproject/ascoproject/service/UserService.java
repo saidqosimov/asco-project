@@ -150,7 +150,7 @@ public class UserService {
         Page<UserEntity> botUsers = botUserRepository.findAll(pageable);
 
         List<GroupModel> groupModels = botUsers.getContent().stream()
-                .filter(user -> String.valueOf(user.getChatId()).startsWith("-100")) // Guruhlar
+                .filter(user -> String.valueOf(user.getChatId()).startsWith("-")) // Guruhlar
                 .map(userEntity -> {
                     TelegramChat chatInfo = telegramService.getChatInfo(userEntity.getChatId());
                     return GroupModel.builder()
