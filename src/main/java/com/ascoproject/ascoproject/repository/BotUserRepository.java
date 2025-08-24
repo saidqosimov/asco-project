@@ -2,6 +2,8 @@ package com.ascoproject.ascoproject.repository;
 
 import com.ascoproject.ascoproject.entity.TaxInfoEntity;
 import com.ascoproject.ascoproject.entity.UserEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +21,5 @@ public interface BotUserRepository extends JpaRepository<UserEntity,Long> {
 
     UserEntity getUserEntityById(Long id);
 
+    Page<UserEntity> findAllByChatIdStartingWith(String s, Pageable pageable);
 }
