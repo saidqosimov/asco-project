@@ -22,4 +22,6 @@ public interface BotUserRepository extends JpaRepository<UserEntity,Long> {
     UserEntity getUserEntityById(Long id);
 
     Page<UserEntity> findAllByChatIdStartingWith(String s, Pageable pageable);
+
+    Page<UserEntity> findAllByChatIdLessThan(Long value, Pageable pageable);
 }

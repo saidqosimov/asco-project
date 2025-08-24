@@ -147,7 +147,8 @@ public class UserService {
         }
 
         // JPA query darajasida faqat guruhlarni olish
-        Page<UserEntity> botUsers = botUserRepository.findAllByChatIdStartingWith("-", pageable);
+        Page<UserEntity> botUsers = botUserRepository.findAllByChatIdLessThan(0L, pageable);
+
 
         List<GroupModel> groupModels = botUsers.getContent().stream()
                 .map(userEntity -> {
